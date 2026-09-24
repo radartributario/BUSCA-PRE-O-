@@ -1,9 +1,9 @@
 name: PC Hunter 24h
 
 on:
-  schedule:
-    - cron: '*/10 * * * *'  # a cada 10 min (mínimo permitido sem spam)
-  workflow_dispatch:       # botão manual para testar
+  workflow_dispatch:       # manual por enquanto — schedule desativado para evitar falsos positivos
+  # schedule:
+  #   - cron: '*/30 * * * *'  # reative após validar scrape de página do produto
 
 jobs:
   hunt:
