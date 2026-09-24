@@ -118,18 +118,26 @@ function extractPrices(html, part){
   return [...new Set(out)].sort((a,b)=>a-b).slice(0,5);
 }
 
-async function checkProductPage(part){
-  const url = SAVED_LINKS[part.id];
-  if(!url) return null;
-  try{
-    const res = await fetch(url, { headers: HEADERS, signal: AbortSignal.timeout(15000) });
-    const html = await res.text();
-    const price = extractProductPrice(html);
-    const hasSku = html.toLowerCase().includes(part.search.split(' ').pop().toLowerCase().slice(0,6));
-    return { store: 'Link salvo', url, best: price, prices: price?[price]:[], ok: res.ok, hasSku, isProductPage:true };
-  }catch(e){
-    return { store: 'Link salvo', url, best:null, prices:[], ok:false, error: String(e).slice(0,120), hasSku:false, isProductPage:true };
+async function checkSavedLinks(part){
+  const entry = SAVED_LINKS[part.id];
+  if(!entry) return [];
+  const urls = Array.isArray(entry) ? entry : [entry];
+  const out=[];
+  for(const url of urls){
+    if(!url || url.startsWith('_')) continue;
+    try{
+      const res = await fetch(url, { headers: HEADERS, signal: AbortSignal.timeout(15000) });
+      const html = await res.text();
+      const price = extractProductPrice(html);
+      const skuPart = part.search.split(' ').pop().toLowerCase().slice(0,6);
+      const hasSku = html.toLowerCase().includes(skuPart);
+      out.push({ store: 'Link salvo', url, best: price, prices: price?[price]:[], ok: res.ok, hasSku, isProductPage:true });
+    }catch(e){
+      out.push({ store: 'Link salvo', url, best:null, prices:[], ok:false, error: String(e).slice(0,120), hasSku:false, isProductPage:true });
+    }
+    await new Promise(r=>setTimeout(r, 700));
   }
+  return out;
 }
 
 async function checkStore(part, store){
@@ -190,15 +198,17 @@ async function runOnce(){
     console.log(`\n[${part.cat}] ${part.name}`);
     console.log(`  alvo: ${fmt(part.target)} | busca: "${part.search}"`);
     const results=[];
-    // PRIORIDADE 1: se usuário salvou link exato do produto (dashboard → salvar link), usa ele — é página de produto, preço confiável
-    const saved = await checkProductPage(part);
-    if(saved){
+    // PRIORIDADE 1: links salvos (página do produto) — vasculha TODOS em paralelo (multi-loja)
+    const savedList = await checkSavedLinks(part);
+    for(const saved of savedList){
       results.push(saved);
       const priceStr = saved.best!=null ? fmt(saved.best) : (saved.error? `erro: ${saved.error}` : 'sem preço / link bloqueado');
       const hit = saved.best!=null && saved.best <= part.target ? ' 🔥 NO PREÇO!' : '';
-      const skuOk = saved.hasSku ? 'SKU ok' : 'SKU não encontrado (link pode estar errado)';
-      console.log(`  → ${'Link salvo'.padEnd(10)} ${priceStr}${hit} — ${saved.url} [${skuOk}]`);
+      const skuOk = saved.hasSku ? 'SKU ok' : 'SKU não encontrado';
+      const storeShort = saved.url.includes('kabum')?'KaBuM':saved.url.includes('pichau')?'Pichau':saved.url.includes('terabyte')?'Terabyte':saved.url.includes('amazon')?'Amazon':'Link';
+      console.log(`  → ${storeShort.padEnd(10)} ${priceStr}${hit} — ${saved.url} [${skuOk}]`);
     }
+    if(savedList.length===0) console.log(`  ℹ️  sem link salvo — será monitorado via busca (sem Zap automático, só informativo)`);
     // PRIORIDADE 2: busca nas lojas (apenas informativo, NÃO dispara Zap automático para busca — só dashboard manual é confiável)
     for(const store of STORES){
       const r = await checkStore(part, store);
