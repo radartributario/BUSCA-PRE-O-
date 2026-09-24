@@ -1,0 +1,22 @@
+name: PC Hunter 24h
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'  # a cada 10 min (mínimo permitido sem spam)
+  workflow_dispatch:       # botão manual para testar
+
+jobs:
+  hunt:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Caçar promoções
+        env:
+          WHATSAPP_PHONE: ${{ secrets.WHATSAPP_PHONE }}
+          WHATSAPP_APIKEY: ${{ secrets.WHATSAPP_APIKEY }}
+          INTERVAL_MIN: 0
+        run: node pc-hunter/tracker.js

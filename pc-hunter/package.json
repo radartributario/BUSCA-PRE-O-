@@ -1,0 +1,10 @@
+{
+  "name": "pc-hunter",
+  "version": "1.0.0",
+  "description": "Monitor de promoções PC - alerta no Zap 24h",
+  "type": "module",
+  "scripts": {
+    "start": "node tracker.js",
+    "hunt": "node tracker.js"
+  }
+}
