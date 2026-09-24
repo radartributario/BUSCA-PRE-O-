@@ -1,22 +1,26 @@
 {
   "cpu": [
-    "https://www.kabum.com.br/produto/520365/processador-amd-ryzen-5-8600g-100-100001237box"
+    "https://www.kabum.com.br/produto/520365/processador-amd-ryzen-5-8600g-100-100001237box",
+    "https://www.terabyteshop.com.br/produto/27326/processador-amd-ryzen-5-8600g-43ghz-50ghz-turbo-6-cores-12-threads-am5-com-cooler-amd-wraith-stealth-100-100001237box"
   ],
   "mobo": [
     "https://www.kabum.com.br/produto/468104/placa-mae-gigabyte-b650m-aorus-elite-am5-ax-ddr5-wifi-6e"
   ],
   "ram": [
     "https://www.kabum.com.br/produto/616568/memoria-ram-kingston-fury-beast-expo-32gb-2x16gb-6000mt-s-ddr5-dimm-cl30-preto-kf560c30bbek2-32",
-    "https://www.pichau.com.br/memoria-kingston-fury-beast-32gb-2x16gb-ddr5-6000mhz-c30-preto-kf560c30bbek2-32"
+    "https://www.pichau.com.br/memoria-kingston-fury-beast-32gb-2x16gb-ddr5-6000mhz-c30-preto-kf560c30bbek2-32",
+    "https://www.terabyteshop.com.br/produto/24309/memoria-ddr5-kingston-fury-beast-expo-32gb-2x16gb-6000mhz-black-kf560c36bbek2-32"
   ],
   "ssd": [
-    "https://www.kabum.com.br/produto/621162/ssd-kingston-nv3-1-tb-m-2-2280-pcie-4-0-x4-nvme-leitura-6000-mb-s-gravacao-4000-mb-s-azul-snv3s-1000g"
+    "https://www.kabum.com.br/produto/621162/ssd-kingston-nv3-1-tb-m-2-2280-pcie-4-0-x4-nvme-leitura-6000-mb-s-gravacao-4000-mb-s-azul-snv3s-1000g",
+    "https://www.terabyteshop.com.br/produto/31564/ssd-kingston-nv3-1tb-m2-nvme-2280-pcie-40-leitura-6000mbs-e-gravacao-4000mbs-snv3s1000g"
   ],
   "psu": [
-    "https://www.kabum.com.br/produto/369658/fonte-msi-mag-a650bn-650w-80-plus-bronze-pfc-ativo-com-cabo-preto-306-7zp2b22-ce0"
+    "https://www.kabum.com.br/produto/369658/fonte-msi-mag-a650bn-650w-80-plus-bronze-pfc-ativo-com-cabo-preto-306-7zp2b22-ce0",
+    "https://www.terabyteshop.com.br/produto/23304/fonte-msi-mag-a650bn-650w-80-plus-bronze-pfc-ativo-black"
   ],
   "case": [],
   "gpu1": [],
   "gpu2": [],
-  "_nota": "Salvos automaticamente via busca SKU. Adicione manualmente Terabyte/Pichau/Amazon copiando link da página do produto. Tracker monitora TODOS os links em paralelo."
+  "_nota": "Multi-loja ativo. Cada peça com 2-3 links = vasculha KaBuM+Terabyte+Pichau em paralelo. Adicione gabinete/GPUs quando encontrar link exato."
 }
