@@ -49,18 +49,37 @@ const HEADERS = {
 
 function fmt(v){ return v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
 
-// tenta extrair preços do HTML (heurística — pega R$ 1.234,56)
-// com filtro anti-falso-positivo: ignora preços muito abaixo do alvo (acessórios, frete, etc)
-function extractPrices(html, target){
+// tenta extrair preços do HTML — ANTI-FALSO-POSITIVO:
+// 1) Só considera preços PRÓXIMOS ao SKU no HTML (evita pegar preço de produto aleatório da busca)
+// 2) Ignora preços muito abaixo do alvo (acessórios)
+// Se não encontrar preço perto do SKU, retorna vazio -> "sem preço / bloqueado" e NÃO dispara Zap
+function extractPrices(html, part){
+  const target = part.target;
+  const sku = part.search.split(' ').pop(); // ex: 100-100001237BOX, KF560C30BBEK2-32, SNV3S/1000G, DK352-MESH-4F
+  const skuShort = sku.length >= 6 ? sku.slice(0, 8) : sku;
+  const minReasonable = target >= 500 ? target * 0.78 : target * 0.62; // CPU/GPU/MOBO mais rigoroso, fonte/gabinete mais flexível
+  const maxReasonable = target * 1.6; // ignora preços muito acima (outro produto caro)
+
+  // tenta achar bloco onde SKU aparece e pegar preços próximos (± 3000 chars)
+  const skuIdx = html.toLowerCase().indexOf(skuShort.toLowerCase());
+  let searchHtml = html;
+  if(skuIdx !== -1){
+    const start = Math.max(0, skuIdx - 3000);
+    const end = Math.min(html.length, skuIdx + 8000);
+    searchHtml = html.slice(start, end);
+  }
+  // se SKU não encontrado, ainda extrai preços mas marca como não-verificado (alerta será bloqueado depois via hasSku)
+
   const re = /R\$\s*([\d\.]+,\d{2})/g;
   const out=[];
   let m;
-  const minReasonable = target ? target * 0.62 : 80; // ex: alvo 970 → ignora < 601; alvo 300 → ignora < 186
-  while((m=re.exec(html))!==null){
+  while((m=re.exec(searchHtml))!==null){
     const raw=m[1].replace(/\./g,'').replace(',','.');
     const v=Number(raw);
-    if(v >= minReasonable && v < 20000) out.push(v);
+    if(v >= minReasonable && v <= maxReasonable) out.push(v);
   }
+  // se SKU foi encontrado, exige pelo menos 1 preço plausível perto dele
+  // se não, já retornou vazio acima
   return [...new Set(out)].sort((a,b)=>a-b).slice(0,5);
 }
 
@@ -69,9 +88,9 @@ async function checkStore(part, store){
   try{
     const res = await fetch(url, { headers: HEADERS, signal: AbortSignal.timeout(15000) });
     const html = await res.text();
-    const prices = extractPrices(html, part.target);
+    const prices = extractPrices(html, part);
     const best = prices[0] ?? null;
-    return { store: store.name, url, best, prices, ok: res.ok, status: res.status };
+    return { store: store.name, url, best, prices, ok: res.ok, status: res.status, hasSku: html.toLowerCase().includes(part.search.split(' ').pop().toLowerCase().slice(0,6)) };
   }catch(e){
     return { store: store.name, url, best:null, prices:[], ok:false, error: String(e).slice(0,120) };
   }
@@ -133,18 +152,23 @@ async function runOnce(){
     }
     const validPrices = results.map(r=>r.best).filter(v=>v!=null);
     const best = validPrices.length ? Math.min(...validPrices) : null;
-    // anti-spam: só alerta se preço for plausível (já filtrado) e dentro da janela
-    const isPlausible = best!=null && best >= part.target*0.62 && best <= part.target;
+    const minPlausible = part.target >= 500 ? part.target * 0.78 : part.target * 0.62;
+    const isPlausible = best!=null && best >= minPlausible && best <= part.target;
     if(isPlausible){
       const bestStore = results.find(r=>r.best===best);
-      const msg = `🔥 *PC Hunter ALERTA* 🔥\n*${part.cat}: ${part.name}*\nPreço: *${fmt(best)}* (alvo ${fmt(part.target)})\nLoja: ${bestStore.store}\nLink: ${bestStore.url}\nBusca exata: \`${part.search}\``;
-      console.log(`  ✅ ALERTA DISPARADO — ${fmt(best)} ≤ ${fmt(part.target)}`);
-      // beep
-      process.stdout.write('\x07');
-      await sendTelegram(msg);
-      // WhatsApp — mesma msg, sem Markdown para CallMeBot
-      const waMsg = `🔥 PC HUNTER ALERTA 🔥\n${part.cat}: ${part.name}\nPreço: ${fmt(best)} (alvo ${fmt(part.target)})\nLoja: ${bestStore.store}\nLink: ${bestStore.url}\nCORRE PRA COMPRAR!`;
-      await sendWhatsApp(waMsg);
+      // só dispara Zap se o SKU foi encontrado perto do preço (evita falso R$52 do screenshot)
+      if(!bestStore.hasSku && part.target >= 500){
+        console.log(`  ⚠️  preço ${fmt(best)} ignorado — SKU não encontrado na página (falso positivo bloqueado)`);
+      } else {
+        const msg = `🔥 *PC Hunter ALERTA* 🔥\n*${part.cat}: ${part.name}*\nPreço: *${fmt(best)}* (alvo ${fmt(part.target)})\nLoja: ${bestStore.store}\nLink: ${bestStore.url}\nBusca exata: \`${part.search}\``;
+        console.log(`  ✅ ALERTA DISPARADO — ${fmt(best)} ≤ ${fmt(part.target)}`);
+        // beep
+        process.stdout.write('\x07');
+        await sendTelegram(msg);
+        // WhatsApp — mesma msg, sem Markdown para CallMeBot
+        const waMsg = `🔥 PC HUNTER ALERTA 🔥\n${part.cat}: ${part.name}\nPreço: ${fmt(best)} (alvo ${fmt(part.target)})\nLoja: ${bestStore.store}\nLink: ${bestStore.url}\nCORRE PRA COMPRAR!`;
+        await sendWhatsApp(waMsg);
+      }
     } else if(best!=null){
       console.log(`  ⏳ acima do alvo por ${fmt(best - part.target)} (menor: ${fmt(best)})`);
     } else {
