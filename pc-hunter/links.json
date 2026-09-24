@@ -1,0 +1,5 @@
+{
+  "_instrucoes": "Salve o link EXATO da página do produto em cada loja via dashboard (botão salvar link), depois exporte ou cole aqui. Exemplo abaixo — substitua pelas URLs reais que você salvar.",
+  "_exemplo_cpu": "https://www.kabum.com.br/produto/520365/processador-amd-ryzen-5-8600g-100-100001237box",
+  "_como_preencher": "Abra pc-hunter/index.html > em cada peça clique 'salvar link' e cole a URL da página do produto (não da busca). Depois copie o JSON exportado para cá ou crie state.json"
+}

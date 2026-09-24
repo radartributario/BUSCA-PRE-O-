@@ -30,6 +30,25 @@ const STORES = [
   { id:'amazon', name:'Amazon', url: q => `https://www.amazon.com.br/s?k=${encodeURIComponent(q)}` },
 ];
 
+// NOVO: links exatos do produto (página do produto, não busca) — muito mais confiável que busca
+// Gerado pelo dashboard: clique "salvar link" em cada peça, exporte e salve como pc-hunter/links.json
+// Formato: { "cpu":"https://www.kabum.com.br/produto/520365/...", "mobo":"https://..." }
+// Se existir, o tracker busca DIRETO na página do produto e só dispara Zap se SKU bater
+import fs from 'fs';
+let SAVED_LINKS = {};
+try {
+  const raw = fs.readFileSync(new URL('./links.json', import.meta.url), 'utf8');
+  SAVED_LINKS = JSON.parse(raw);
+} catch {}
+// também tenta links salvos do state exportado
+try {
+  if(Object.keys(SAVED_LINKS).length===0){
+    const raw2 = fs.readFileSync(new URL('./state.json', import.meta.url), 'utf8');
+    const j = JSON.parse(raw2);
+    SAVED_LINKS = j.links || j.state?.links || {};
+  }
+} catch {}
+
 const INTERVAL_MIN = Number(process.env.INTERVAL_MIN || 5);
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '';
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || '';
@@ -49,7 +68,23 @@ const HEADERS = {
 
 function fmt(v){ return v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
 
-// tenta extrair preços do HTML — ANTI-FALSO-POSITIVO:
+function extractProductPrice(html){
+  // tenta extrair preço de PÁGINA DE PRODUTO (mais confiável)
+  // 1) JSON-LD / Next data: "price": 949.90
+  const jsonPrices=[];
+  for(const re of [/\"price\"\s*:\s*\"?([\d\.]+)\"?/g, /\"offerPrice\"\s*:\s*([\d\.]+)/g, /\"currentPrice\"\s*:\s*([\d\.]+)/g]){
+    let m; while((m=re.exec(html))!==null){ const v=Number(m[1]); if(v>80&&v<20000) jsonPrices.push(v); }
+  }
+  if(jsonPrices.length) return Math.min(...jsonPrices);
+  // 2) fallback regex R$
+  const re2=/R\$\s*([\d\.]+,\d{2})/g;
+  let m2; const out=[];
+  while((m2=re2.exec(html))!==null){ const raw=m2[1].replace(/\./g,'').replace(',','.'); const v=Number(raw); if(v>80&&v<20000) out.push(v); }
+  if(out.length) return Math.min(...out);
+  return null;
+}
+
+// tenta extrair preços do HTML — ANTI-FALSO-POSITIVO para PÁGINA DE BUSCA:
 // 1) Só considera preços PRÓXIMOS ao SKU no HTML (evita pegar preço de produto aleatório da busca)
 // 2) Ignora preços muito abaixo do alvo (acessórios)
 // Se não encontrar preço perto do SKU, retorna vazio -> "sem preço / bloqueado" e NÃO dispara Zap
@@ -83,6 +118,20 @@ function extractPrices(html, part){
   return [...new Set(out)].sort((a,b)=>a-b).slice(0,5);
 }
 
+async function checkProductPage(part){
+  const url = SAVED_LINKS[part.id];
+  if(!url) return null;
+  try{
+    const res = await fetch(url, { headers: HEADERS, signal: AbortSignal.timeout(15000) });
+    const html = await res.text();
+    const price = extractProductPrice(html);
+    const hasSku = html.toLowerCase().includes(part.search.split(' ').pop().toLowerCase().slice(0,6));
+    return { store: 'Link salvo', url, best: price, prices: price?[price]:[], ok: res.ok, hasSku, isProductPage:true };
+  }catch(e){
+    return { store: 'Link salvo', url, best:null, prices:[], ok:false, error: String(e).slice(0,120), hasSku:false, isProductPage:true };
+  }
+}
+
 async function checkStore(part, store){
   const url = store.url(part.search);
   try{
@@ -90,7 +139,7 @@ async function checkStore(part, store){
     const html = await res.text();
     const prices = extractPrices(html, part);
     const best = prices[0] ?? null;
-    return { store: store.name, url, best, prices, ok: res.ok, status: res.status, hasSku: html.toLowerCase().includes(part.search.split(' ').pop().toLowerCase().slice(0,6)) };
+    return { store: store.name, url, best, prices, ok: res.ok, status: res.status, hasSku: html.toLowerCase().includes(part.search.split(' ').pop().toLowerCase().slice(0,6)), isProductPage:false };
   }catch(e){
     return { store: store.name, url, best:null, prices:[], ok:false, error: String(e).slice(0,120) };
   }
@@ -141,38 +190,56 @@ async function runOnce(){
     console.log(`\n[${part.cat}] ${part.name}`);
     console.log(`  alvo: ${fmt(part.target)} | busca: "${part.search}"`);
     const results=[];
-    // consulta sequencial para não tomar block
+    // PRIORIDADE 1: se usuário salvou link exato do produto (dashboard → salvar link), usa ele — é página de produto, preço confiável
+    const saved = await checkProductPage(part);
+    if(saved){
+      results.push(saved);
+      const priceStr = saved.best!=null ? fmt(saved.best) : (saved.error? `erro: ${saved.error}` : 'sem preço / link bloqueado');
+      const hit = saved.best!=null && saved.best <= part.target ? ' 🔥 NO PREÇO!' : '';
+      const skuOk = saved.hasSku ? 'SKU ok' : 'SKU não encontrado (link pode estar errado)';
+      console.log(`  → ${'Link salvo'.padEnd(10)} ${priceStr}${hit} — ${saved.url} [${skuOk}]`);
+    }
+    // PRIORIDADE 2: busca nas lojas (apenas informativo, NÃO dispara Zap automático para busca — só dashboard manual é confiável)
     for(const store of STORES){
       const r = await checkStore(part, store);
       results.push(r);
       const priceStr = r.best!=null ? fmt(r.best) : (r.error? `erro: ${r.error}` : 'sem preço / bloqueado');
-      const hit = r.best!=null && r.best <= part.target ? ' 🔥 NO PREÇO!' : '';
+      const hit = r.best!=null && r.best <= part.target && r.hasSku ? ' 🔥 NO PREÇO!' : (r.best!=null && r.best <= part.target ? ' (ignorado - SKU não confere)' : '');
       console.log(`  → ${store.name.padEnd(10)} ${priceStr}${hit} — ${r.url}`);
       await new Promise(res=>setTimeout(res, 900));
     }
-    const validPrices = results.map(r=>r.best).filter(v=>v!=null);
-    const best = validPrices.length ? Math.min(...validPrices) : null;
+    // só considera para ALERTA automático os links salvos (página de produto) — busca é apenas informativa
+    const productResults = results.filter(r=>r.isProductPage);
+    const validProductPrices = productResults.map(r=>r.best).filter(v=>v!=null);
+    const bestProduct = validProductPrices.length ? Math.min(...validProductPrices) : null;
     const minPlausible = part.target >= 500 ? part.target * 0.78 : part.target * 0.62;
-    const isPlausible = best!=null && best >= minPlausible && best <= part.target;
-    if(isPlausible){
-      const bestStore = results.find(r=>r.best===best);
-      // só dispara Zap se o SKU foi encontrado perto do preço (evita falso R$52 do screenshot)
-      if(!bestStore.hasSku && part.target >= 500){
-        console.log(`  ⚠️  preço ${fmt(best)} ignorado — SKU não encontrado na página (falso positivo bloqueado)`);
+
+    if(bestProduct!=null && bestProduct >= minPlausible && bestProduct <= part.target){
+      const bestStore = productResults.find(r=>r.best===bestProduct);
+      if(!bestStore.hasSku){
+        console.log(`  ⚠️  preço ${fmt(bestProduct)} ignorado — SKU não encontrado na página do produto (link errado?)`);
       } else {
-        const msg = `🔥 *PC Hunter ALERTA* 🔥\n*${part.cat}: ${part.name}*\nPreço: *${fmt(best)}* (alvo ${fmt(part.target)})\nLoja: ${bestStore.store}\nLink: ${bestStore.url}\nBusca exata: \`${part.search}\``;
-        console.log(`  ✅ ALERTA DISPARADO — ${fmt(best)} ≤ ${fmt(part.target)}`);
-        // beep
+        const msg = `🔥 *PC Hunter ALERTA* 🔥\n*${part.cat}: ${part.name}*\nPreço: *${fmt(bestProduct)}* (alvo ${fmt(part.target)})\nLoja: ${bestStore.store}\nLink: ${bestStore.url}\nBusca exata: \`${part.search}\``;
+        console.log(`  ✅ ALERTA DISPARADO (link salvo) — ${fmt(bestProduct)} ≤ ${fmt(part.target)}`);
         process.stdout.write('\x07');
         await sendTelegram(msg);
-        // WhatsApp — mesma msg, sem Markdown para CallMeBot
-        const waMsg = `🔥 PC HUNTER ALERTA 🔥\n${part.cat}: ${part.name}\nPreço: ${fmt(best)} (alvo ${fmt(part.target)})\nLoja: ${bestStore.store}\nLink: ${bestStore.url}\nCORRE PRA COMPRAR!`;
+        const waMsg = `🔥 PC HUNTER ALERTA 🔥\n${part.cat}: ${part.name}\nPreço: ${fmt(bestProduct)} (alvo ${fmt(part.target)})\nLoja: ${bestStore.store}\nLink: ${bestStore.url}\nCORRE PRA COMPRAR!`;
         await sendWhatsApp(waMsg);
       }
-    } else if(best!=null){
-      console.log(`  ⏳ acima do alvo por ${fmt(best - part.target)} (menor: ${fmt(best)})`);
+    } else if(bestProduct!=null){
+      console.log(`  ⏳ link salvo acima do alvo por ${fmt(bestProduct - part.target)} (menor: ${fmt(bestProduct)})`);
     } else {
-      console.log(`  ⚠️  Nenhum preço extraído — abra os links manualmente (anti-bot das lojas)`);
+      console.log(`  ℹ️  sem link salvo — salve o link exato do produto no dashboard para alerta automático (busca não dispara Zap)`);
+    }
+
+    // info extra da busca (sem Zap) — apenas para debug
+    const searchResults = results.filter(r=>!r.isProductPage);
+    const validSearch = searchResults.map(r=>r.best).filter(v=>v!=null && v >= minPlausible);
+    const bestSearch = validSearch.length ? Math.min(...validSearch) : null;
+    if(bestSearch!=null && bestSearch <= part.target){
+      const bs = searchResults.find(r=>r.best===bestSearch);
+      if(bs.hasSku) console.log(`  ℹ️  busca ${bs.store} também no preço ${fmt(bestSearch)} — confirme manualmente (link de busca)`);
+      else console.log(`  ℹ️  busca ${bs.store} preço ${fmt(bestSearch)} ignorado para Zap (SKU não confere)`);
     }
   }
   console.log(`\nPróxima varredura em ${INTERVAL_MIN} min — deixe rodando. Ctrl+C para sair.`);
