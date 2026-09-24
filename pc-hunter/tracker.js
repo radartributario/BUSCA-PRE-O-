@@ -50,14 +50,16 @@ const HEADERS = {
 function fmt(v){ return v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
 
 // tenta extrair preços do HTML (heurística — pega R$ 1.234,56)
-function extractPrices(html){
+// com filtro anti-falso-positivo: ignora preços muito abaixo do alvo (acessórios, frete, etc)
+function extractPrices(html, target){
   const re = /R\$\s*([\d\.]+,\d{2})/g;
   const out=[];
   let m;
+  const minReasonable = target ? target * 0.62 : 80; // ex: alvo 970 → ignora < 601; alvo 300 → ignora < 186
   while((m=re.exec(html))!==null){
     const raw=m[1].replace(/\./g,'').replace(',','.');
     const v=Number(raw);
-    if(v>50 && v<20000) out.push(v);
+    if(v >= minReasonable && v < 20000) out.push(v);
   }
   return [...new Set(out)].sort((a,b)=>a-b).slice(0,5);
 }
@@ -67,7 +69,7 @@ async function checkStore(part, store){
   try{
     const res = await fetch(url, { headers: HEADERS, signal: AbortSignal.timeout(15000) });
     const html = await res.text();
-    const prices = extractPrices(html);
+    const prices = extractPrices(html, part.target);
     const best = prices[0] ?? null;
     return { store: store.name, url, best, prices, ok: res.ok, status: res.status };
   }catch(e){
@@ -131,7 +133,9 @@ async function runOnce(){
     }
     const validPrices = results.map(r=>r.best).filter(v=>v!=null);
     const best = validPrices.length ? Math.min(...validPrices) : null;
-    if(best!=null && best <= part.target){
+    // anti-spam: só alerta se preço for plausível (já filtrado) e dentro da janela
+    const isPlausible = best!=null && best >= part.target*0.62 && best <= part.target;
+    if(isPlausible){
       const bestStore = results.find(r=>r.best===best);
       const msg = `🔥 *PC Hunter ALERTA* 🔥\n*${part.cat}: ${part.name}*\nPreço: *${fmt(best)}* (alvo ${fmt(part.target)})\nLoja: ${bestStore.store}\nLink: ${bestStore.url}\nBusca exata: \`${part.search}\``;
       console.log(`  ✅ ALERTA DISPARADO — ${fmt(best)} ≤ ${fmt(part.target)}`);
