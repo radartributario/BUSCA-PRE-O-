@@ -17,6 +17,7 @@ const PARTS = [
   { id:'mobo_a620', cat:'Placa-mãe', name:'Placa-mãe A620M AM5 DDR5', search:'Placa mae A620M AM5 DDR5', target:600 },
   { id:'mobo_b650', cat:'Placa-mãe', name:'Placa-mãe B650M AM5 DDR5 (até R$ 700 COMPRE)', search:'Placa mae B650M AM5 DDR5 WiFi', target:700 },
   { id:'ram', cat:'Memória', name:'32GB DDR5 (2x16GB) 5600/6000MHz', search:'Memoria 32GB DDR5 6000MHz 2x16GB', target:2500 },
+  { id:'ram_16', cat:'Memória', name:'16GB DDR5 (2x8GB) 5600/6000MHz (plano B)', search:'Memoria 16GB DDR5 6000MHz 2x8GB', target:2200 },
   { id:'ssd', cat:'SSD', name:'SSD NVMe 1TB PCIe 4.0', search:'SSD NVMe 1TB PCIe 4.0', target:1200 },
   { id:'psu', cat:'Fonte', name:'Fonte 550W/650W 80 Plus Bronze', search:'Fonte 650W 80 Plus Bronze', target:350 },
   { id:'case', cat:'Gabinete', name:'Gabinete mATX/ATX boa ventilação', search:'Gabinete Gamer mATX ATX', target:250 },
