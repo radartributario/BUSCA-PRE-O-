@@ -20,7 +20,11 @@
     "https://www.terabyteshop.com.br/produto/23304/fonte-msi-mag-a650bn-650w-80-plus-bronze-pfc-ativo-black"
   ],
   "case": [],
-  "gpu1": [],
-  "gpu2": [],
-  "_nota": "Multi-loja ativo. Cada peça com 2-3 links = vasculha KaBuM+Terabyte+Pichau em paralelo. Adicione gabinete/GPUs quando encontrar link exato."
+  "gpu1": [
+    "https://www.kabum.com.br/produto/461103/placa-de-video-gaming-pulse-amd-radeon-rx-7600-8gb-gddr6-11324-01-20g"
+  ],
+  "gpu2": [
+    "https://www.kabum.com.br/produto/502704/placa-de-video-rtx-4060-windforce-oc-gigabyte-nvidia-geforce-8gb-gddr6-dlss-ray-tracing-gv-n4060wf2oc-8gd"
+  ],
+  "_nota": "Gabinete DK352-MESH-4F nao encontrado no KaBuM via busca (so DK360/Leo). Envie link exato da loja onde viu para ativar alerta do gabinete."
 }

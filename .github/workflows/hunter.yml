@@ -1,9 +1,9 @@
 name: PC Hunter 24h
 
 on:
-  workflow_dispatch:       # manual por enquanto — schedule desativado para evitar falsos positivos
-  # schedule:
-  #   - cron: '*/30 * * * *'  # reative após validar scrape de página do produto
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
 
 jobs:
   hunt:
