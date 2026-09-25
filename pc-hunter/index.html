@@ -70,7 +70,7 @@ tailwind.config={
   <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4">
     <div class="text-[11px] tracking-widest text-gray-500 font-bold">ORÇAMENTO ALVO</div>
     <div class="text-2xl font-black mt-1">R$ <span id="statAlvo">5.360</span></div>
-    <div class="text-xs text-gray-500 mt-1">sem GPUs opcionais • <span id="statAlvoComGpu" class="text-gray-400">R$ 7.060 c/ RX 7600</span></div>
+    <div class="text-xs text-gray-500 mt-1">PC trabalho (A620) • <span class="text-gray-400">B650 até R$ 700 • PS5 R$ 3.500 separados</span></div>
   </div>
   <div class="bg-gray-900 border border-emerald-900/50 rounded-2xl p-4 flex flex-col justify-between">
     <div class="text-[11px] tracking-widest text-emerald-400 font-bold"><i class="fa-solid fa-bolt"></i> AÇÃO RÁPIDA</div>
@@ -192,14 +192,14 @@ tailwind.config={
 
 <script>
 const PARTS = [
-  { id:'cpu', icon:'🧠', cat:'Processador', name:'AMD Ryzen 5 8600G 100-100001237BOX', search:'AMD Ryzen 5 8600G 100-100001237BOX', target:970, ideal:950, optional:false, storeHint:'BOX com cooler' },
-  { id:'mobo', icon:'🧩', cat:'Placa-mãe', name:'Gigabyte B650M Gaming Plus WiFi AM5 DDR5 9MB65MGPW-00-10', search:'Gigabyte B650M Gaming Plus WiFi AM5 DDR5 9MB65MGPW-00-10', target:900, ideal:900, optional:false },
-  { id:'ram', icon:'💾', cat:'Memória', name:'Kingston Fury Beast 32GB 2x16GB DDR5 6000 CL30 EXPO KF560C30BBEK2-32', search:'Kingston Fury Beast 32GB 2x16GB DDR5 6000 CL30 EXPO KF560C30BBEK2-32', target:950, ideal:950, optional:false },
-  { id:'ssd', icon:'🚀', cat:'SSD', name:'Kingston NV3 1TB NVMe PCIe 4.0 SNV3S/1000G', search:'Kingston NV3 1TB NVMe PCIe 4.0 SNV3S/1000G', target:950, ideal:950, optional:false },
-  { id:'psu', icon:'⚡', cat:'Fonte', name:'MSI MAG A650BN 650W 80 Plus Bronze 306-7ZP2B22-CE0', search:'MSI MAG A650BN 650W 80 Plus Bronze 306-7ZP2B22-CE0', target:300, ideal:280, optional:false },
-  { id:'case', icon:'🖥️', cat:'Gabinete', name:'Aigo DarkFlash DK352 Mesh 4 Fans DK352-MESH-4F', search:'Aigo DarkFlash DK352 Mesh 4 Fans DK352-MESH-4F', target:300, ideal:280, optional:false },
-  { id:'gpu1', icon:'🎮', cat:'GPU futura', name:'Radeon RX 7600 8GB GDDR6', search:'Radeon RX 7600 8GB GDDR6', target:1750, ideal:1700, optional:true },
-  { id:'gpu2', icon:'🎮', cat:'GPU futura alt.', name:'GeForce RTX 4060 8GB GDDR6', search:'GeForce RTX 4060 8GB GDDR6', target:1900, ideal:1850, optional:true },
+  { id:'cpu', icon:'🧠', cat:'Processador', name:'Ryzen 5 8600G AM5', search:'AMD Ryzen 5 8600G AM5', target:1000, ideal:1000, optional:false },
+  { id:'mobo_a620', icon:'🧩', cat:'Placa-mãe', name:'Placa-mãe A620M AM5 DDR5', search:'Placa mae A620M AM5 DDR5', target:600, ideal:600, optional:false },
+  { id:'mobo_b650', icon:'⭐', cat:'Placa-mãe', name:'Placa-mãe B650M AM5 DDR5 (até R$ 700 COMPRE)', search:'Placa mae B650M AM5 DDR5 WiFi', target:700, ideal:700, optional:true },
+  { id:'ram', icon:'💾', cat:'Memória', name:'32GB DDR5 (2x16GB) 5600/6000MHz', search:'Memoria 32GB DDR5 6000MHz 2x16GB', target:700, ideal:700, optional:false },
+  { id:'ssd', icon:'🚀', cat:'SSD', name:'SSD NVMe 1TB PCIe 4.0 (R$ 500 se modelo top)', search:'SSD NVMe 1TB PCIe 4.0', target:400, ideal:400, optional:false },
+  { id:'psu', icon:'⚡', cat:'Fonte', name:'Fonte 550W/650W 80 Plus Bronze', search:'Fonte 650W 80 Plus Bronze', target:350, ideal:350, optional:false },
+  { id:'case', icon:'🖥️', cat:'Gabinete', name:'Gabinete mATX/ATX boa ventilação', search:'Gabinete Gamer mATX ATX', target:250, ideal:250, optional:false },
+  { id:'ps5', icon:'🎮', cat:'Console', name:'Playstation 5 1TB', search:'Playstation 5 1TB', target:3500, ideal:3500, optional:true },
 ];
 
 const STORES = [
@@ -521,7 +521,7 @@ document.getElementById('btnVerificarTudo').addEventListener('click', ()=>{
     setTimeout(()=> window.open(STORES[0].url(p.search),'_blank'), delay);
     delay+=220;
   }
-  toast('Abrindo KaBuM! para as 8 peças — use os botões da linha para abrir as outras 3 lojas', 4000);
+  toast(`Abrindo KaBuM! para as ${PARTS.length} peças — use os botões da linha para abrir as outras 3 lojas`, 4000);
   // também abre modal de instrução se primeira vez
   nextAt = Date.now() + parseInt(document.getElementById('intervalSelect').value||'5',10)*60000;
 });

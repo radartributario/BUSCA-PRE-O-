@@ -3,7 +3,8 @@
     "https://www.kabum.com.br/produto/520365/processador-amd-ryzen-5-8600g-100-100001237box",
     "https://www.terabyteshop.com.br/produto/27326/processador-amd-ryzen-5-8600g-43ghz-50ghz-turbo-6-cores-12-threads-am5-com-cooler-amd-wraith-stealth-100-100001237box"
   ],
-  "mobo": [
+  "mobo_a620": [],
+  "mobo_b650": [
     "https://www.kabum.com.br/produto/468104/placa-mae-gigabyte-b650m-aorus-elite-am5-ax-ddr5-wifi-6e"
   ],
   "ram": [
@@ -20,11 +21,6 @@
     "https://www.terabyteshop.com.br/produto/23304/fonte-msi-mag-a650bn-650w-80-plus-bronze-pfc-ativo-black"
   ],
   "case": [],
-  "gpu1": [
-    "https://www.kabum.com.br/produto/461103/placa-de-video-gaming-pulse-amd-radeon-rx-7600-8gb-gddr6-11324-01-20g"
-  ],
-  "gpu2": [
-    "https://www.kabum.com.br/produto/502704/placa-de-video-rtx-4060-windforce-oc-gigabyte-nvidia-geforce-8gb-gddr6-dlss-ray-tracing-gv-n4060wf2oc-8gd"
-  ],
-  "_nota": "Gabinete DK352-MESH-4F nao encontrado no KaBuM via busca (so DK360/Leo). Envie link exato da loja onde viu para ativar alerta do gabinete."
+  "ps5": [],
+  "_nota": "Lista nova: PC trabalho + PS5. A620/case/PS5 sem link salvo — envie o link exato da página do produto para ativar alerta automático dessas peças."
 }

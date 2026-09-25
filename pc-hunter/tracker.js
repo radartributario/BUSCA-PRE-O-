@@ -13,14 +13,14 @@
  */
 
 const PARTS = [
-  { id:'cpu', cat:'Processador', name:'AMD Ryzen 5 8600G 100-100001237BOX', search:'AMD Ryzen 5 8600G 100-100001237BOX', target:970 },
-  { id:'mobo', cat:'Placa-mãe', name:'Gigabyte B650M Gaming Plus WiFi AM5 DDR5 9MB65MGPW-00-10', search:'Gigabyte B650M Gaming Plus WiFi AM5 DDR5 9MB65MGPW-00-10', target:900 },
-  { id:'ram', cat:'Memória', name:'Kingston Fury Beast 32GB 2x16GB DDR5 6000 CL30 EXPO KF560C30BBEK2-32', search:'Kingston Fury Beast 32GB 2x16GB DDR5 6000 CL30 EXPO KF560C30BBEK2-32', target:950 },
-  { id:'ssd', cat:'SSD', name:'Kingston NV3 1TB NVMe PCIe 4.0 SNV3S/1000G', search:'Kingston NV3 1TB NVMe PCIe 4.0 SNV3S/1000G', target:950 },
-  { id:'psu', cat:'Fonte', name:'MSI MAG A650BN 650W 80 Plus Bronze 306-7ZP2B22-CE0', search:'MSI MAG A650BN 650W 80 Plus Bronze 306-7ZP2B22-CE0', target:300 },
-  { id:'case', cat:'Gabinete', name:'Aigo DarkFlash DK352 Mesh 4 Fans DK352-MESH-4F', search:'Aigo DarkFlash DK352 Mesh 4 Fans DK352-MESH-4F', target:300 },
-  { id:'gpu1', cat:'GPU', name:'Radeon RX 7600 8GB GDDR6', search:'Radeon RX 7600 8GB GDDR6', target:1750 },
-  { id:'gpu2', cat:'GPU alt', name:'GeForce RTX 4060 8GB GDDR6', search:'GeForce RTX 4060 8GB GDDR6', target:1900 },
+  { id:'cpu', cat:'Processador', name:'Ryzen 5 8600G AM5', search:'AMD Ryzen 5 8600G AM5', target:1000 },
+  { id:'mobo_a620', cat:'Placa-mãe', name:'Placa-mãe A620M AM5 DDR5', search:'Placa mae A620M AM5 DDR5', target:600 },
+  { id:'mobo_b650', cat:'Placa-mãe', name:'Placa-mãe B650M AM5 DDR5 (até R$ 700 COMPRE)', search:'Placa mae B650M AM5 DDR5 WiFi', target:700 },
+  { id:'ram', cat:'Memória', name:'32GB DDR5 (2x16GB) 5600/6000MHz', search:'Memoria 32GB DDR5 6000MHz 2x16GB', target:700 },
+  { id:'ssd', cat:'SSD', name:'SSD NVMe 1TB PCIe 4.0 (R$ 500 se modelo top)', search:'SSD NVMe 1TB PCIe 4.0', target:400 },
+  { id:'psu', cat:'Fonte', name:'Fonte 550W/650W 80 Plus Bronze', search:'Fonte 650W 80 Plus Bronze', target:350 },
+  { id:'case', cat:'Gabinete', name:'Gabinete mATX/ATX boa ventilação', search:'Gabinete Gamer mATX ATX', target:250 },
+  { id:'ps5', cat:'Console', name:'Playstation 5 1TB', search:'Playstation 5 1TB', target:3500 },
 ];
 
 const STORES = [
