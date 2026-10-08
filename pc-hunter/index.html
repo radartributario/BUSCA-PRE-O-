@@ -70,7 +70,7 @@ tailwind.config={
   <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4">
     <div class="text-[11px] tracking-widest text-gray-500 font-bold">ORÇAMENTO ALVO</div>
     <div class="text-2xl font-black mt-1">R$ <span id="statAlvo">5.360</span></div>
-    <div class="text-xs text-gray-500 mt-1">PC trabalho (A620) • <span class="text-gray-400">B650 até R$ 700 • PS5 R$ 3.500 separados</span></div>
+    <div class="text-xs text-gray-500 mt-1">Playstation 5 1TB com leitor • <span class="text-gray-400">pack com 2 jogos</span></div>
   </div>
   <div class="bg-gray-900 border border-emerald-900/50 rounded-2xl p-4 flex flex-col justify-between">
     <div class="text-[11px] tracking-widest text-emerald-400 font-bold"><i class="fa-solid fa-bolt"></i> AÇÃO RÁPIDA</div>
@@ -192,15 +192,7 @@ tailwind.config={
 
 <script>
 const PARTS = [
-  { id:'cpu', icon:'🧠', cat:'Processador', name:'Ryzen 5 8600G AM5', search:'AMD Ryzen 5 8600G AM5', target:1000, ideal:1000, optional:false },
-  { id:'mobo_a620', icon:'🧩', cat:'Placa-mãe', name:'Placa-mãe A620M AM5 DDR5', search:'Placa mae A620M AM5 DDR5', target:600, ideal:600, optional:false },
-  { id:'mobo_b650', icon:'⭐', cat:'Placa-mãe', name:'Placa-mãe B650M AM5 DDR5 (até R$ 700 COMPRE)', search:'Placa mae B650M AM5 DDR5 WiFi', target:700, ideal:700, optional:true },
-  { id:'ram', icon:'💾', cat:'Memória', name:'32GB DDR5 (2x16GB) 5600/6000MHz', search:'Memoria 32GB DDR5 6000MHz 2x16GB', target:2500, ideal:2500, optional:false },
-  { id:'ram_16', icon:'💾', cat:'Memória', name:'16GB DDR5 (2x8GB) 5600/6000MHz (plano B)', search:'Memoria 16GB DDR5 6000MHz 2x8GB', target:2200, ideal:2200, optional:true },
-  { id:'ssd', icon:'🚀', cat:'SSD', name:'SSD NVMe 1TB PCIe 4.0', search:'SSD NVMe 1TB PCIe 4.0', target:1200, ideal:1200, optional:false },
-  { id:'psu', icon:'⚡', cat:'Fonte', name:'Fonte 550W/650W 80 Plus Bronze', search:'Fonte 650W 80 Plus Bronze', target:350, ideal:350, optional:false },
-  { id:'case', icon:'🖥️', cat:'Gabinete', name:'Gabinete mATX/ATX boa ventilação', search:'Gabinete Gamer mATX ATX', target:250, ideal:250, optional:false },
-  { id:'ps5', icon:'🎮', cat:'Console', name:'Playstation 5 1TB com leitor', search:'Playstation 5 1TB', target:3900, ideal:3900, optional:true },
+  { id:'ps5', icon:'🎮', cat:'Console', name:'Playstation 5 1TB com leitor', search:'Playstation 5 1TB', target:3900, ideal:3900, optional:false },
 ];
 
 const STORES = [
