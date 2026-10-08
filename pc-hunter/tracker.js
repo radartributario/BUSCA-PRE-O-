@@ -21,6 +21,9 @@ const STORES = [
   { id:'terabyte', name:'Terabyte', url: q => `https://www.terabyteshop.com.br/busca?str=${encodeURIComponent(q)}` },
   { id:'pichau', name:'Pichau', url: q => `https://www.pichau.com.br/search?q=${encodeURIComponent(q)}` },
   { id:'amazon', name:'Amazon', url: q => `https://www.amazon.com.br/s?k=${encodeURIComponent(q)}` },
+  { id:'shopee', name:'Shopee', url: q => `https://shopee.com.br/search?keyword=${encodeURIComponent(q)}` },
+  { id:'ml', name:'Mercado Livre', url: q => `https://lista.mercadolivre.com.br/${encodeURIComponent(q)}` },
+  { id:'magalu', name:'Magalu', url: q => `https://www.magazineluiza.com.br/busca/${encodeURIComponent(q)}/` },
 ];
 
 // NOVO: links exatos do produto (página do produto, não busca) — muito mais confiável que busca
@@ -198,7 +201,7 @@ async function runOnce(){
       const priceStr = saved.best!=null ? fmt(saved.best) : (saved.error? `erro: ${saved.error}` : 'sem preço / link bloqueado');
       const hit = saved.best!=null && saved.best <= part.target ? ' 🔥 NO PREÇO!' : '';
       const skuOk = saved.hasSku ? 'SKU ok' : 'SKU não encontrado';
-      const storeShort = saved.url.includes('kabum')?'KaBuM':saved.url.includes('pichau')?'Pichau':saved.url.includes('terabyte')?'Terabyte':saved.url.includes('amazon')?'Amazon':'Link';
+      const storeShort = saved.url.includes('kabum')?'KaBuM':saved.url.includes('pichau')?'Pichau':saved.url.includes('terabyte')?'Terabyte':saved.url.includes('amazon')?'Amazon':saved.url.includes('shopee')?'Shopee':saved.url.includes('mercadolivre')?'M.Livre':saved.url.includes('magazineluiza')?'Magalu':'Link';
       console.log(`  → ${storeShort.padEnd(10)} ${priceStr}${hit} — ${saved.url} [${skuOk}]`);
     }
     if(savedList.length===0) console.log(`  ℹ️  sem link salvo — será monitorado via busca (sem Zap automático, só informativo)`);

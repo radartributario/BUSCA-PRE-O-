@@ -200,6 +200,9 @@ const STORES = [
   { id:'terabyte', name:'Terabyte', color:'bg-red-600', short:'TB', url: q => `https://www.terabyteshop.com.br/busca?str=${encodeURIComponent(q)}` },
   { id:'pichau', name:'Pichau', color:'bg-blue-600', short:'PI', url: q => `https://www.pichau.com.br/search?q=${encodeURIComponent(q)}` },
   { id:'amazon', name:'Amazon', color:'bg-yellow-500 text-black', short:'AM', url: q => `https://www.amazon.com.br/s?k=${encodeURIComponent(q)}` },
+  { id:'shopee', name:'Shopee', color:'bg-orange-600', short:'SH', url: q => `https://shopee.com.br/search?keyword=${encodeURIComponent(q)}` },
+  { id:'ml', name:'Mercado Livre', color:'bg-sky-500', short:'ML', url: q => `https://lista.mercadolivre.com.br/${encodeURIComponent(q)}` },
+  { id:'magalu', name:'Magalu', color:'bg-cyan-500', short:'MG', url: q => `https://www.magazineluiza.com.br/busca/${encodeURIComponent(q)}/` },
 ];
 
 const LS_KEY = 'pc-hunter-v2';
@@ -311,7 +314,7 @@ function render(){
         </div>
         <div class="grid grid-cols-2 gap-1.5">
           <a href="${STORES[0].url(p.search)}" target="_blank" class="col-span-2 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs flex items-center justify-center gap-1.5"><i class="fa-solid fa-bolt"></i> BUSCAR + COMPARAR</a>
-          <button class="openAllBtn py-1.5 rounded-xl bg-gray-800 border border-gray-700 text-xs font-bold hover:bg-gray-700"><i class="fa-solid fa-up-right-from-square"></i> abrir 4</button>
+          <button class="openAllBtn py-1.5 rounded-xl bg-gray-800 border border-gray-700 text-xs font-bold hover:bg-gray-700"><i class="fa-solid fa-up-right-from-square"></i> abrir todas</button>
           <button class="pasteBtn py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold"><i class="fa-solid fa-paste"></i> colar preço</button>
         </div>
       </div>
@@ -547,7 +550,7 @@ document.getElementById('importFile').addEventListener('change', async (e)=>{
   try{ const j=JSON.parse(await f.text()); if(j.state){ state=j.state; saveState(); render(); toast('Backup importado!'); } else throw 0;}catch{alert('JSON inválido');}
 });
 document.getElementById('btnCopyLinks').addEventListener('click', async ()=>{
-  const lines = PARTS.map(p=> `${p.cat} — ${p.name}\n  KaBuM: ${STORES[0].url(p.search)}\n  Terabyte: ${STORES[1].url(p.search)}\n  Pichau: ${STORES[2].url(p.search)}\n  Amazon: ${STORES[3].url(p.search)}`).join('\n\n');
+  const lines = PARTS.map(p=> `${p.cat} — ${p.name}\n` + STORES.map(s=>`  ${s.name}: ${s.url(p.search)}`).join('\n')).join('\n\n');
   await navigator.clipboard.writeText(lines); toast('Todos os links copiados!');
 });
 // WhatsApp config
